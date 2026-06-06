@@ -1,0 +1,59 @@
+<!DOCTYPE html> <!--sagt dem Browser: "Das ist eine HTML5 Datei"-->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> <!--Erlaubt Sonderzeichen wie ä, ö, ü -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!--Sorgt dafür, dass die Seite auf Handys gut aussieht-->
+    <title>Breathe Bubble</title>
+    
+    <!-- Leaflet CSS - das ist die Karten-Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/> <!--Erlaubt die Verwendung von Leaflet-Karten -->
+    <link rel="stylesheet" href="style.css"/> <!--lädt Unsere eigene CSS-Datei für das Design -->
+</head>
+<body>
+
+    <!-- NAVBAR - Navigationsleiste oben auf der Seite -->
+    <nav id="navbar">
+        <h1>🫧 Breathe-Bubble</h1>
+        <input type="text" placeholder="Search quiet places..."/> <!--Suchfeld in der Mitte der Navbar-->
+        <div id="nav-buttons">
+            <button onclick="showLogin()">Log in</button> <!--Ruft showLogin() in script.js auf-->
+            <button onclick="showSignup()">Sign up</button> <!--Ruft showSignup() in script.js auf-->
+        </div>
+    </nav>
+
+    <!-- HAUPTBEREICH - 3 Spalten nebeneinander -->
+    <div id="main-container">
+
+        <!-- LINKS: Info Panel - zeigt Details wenn man auf einen Marker klickt -->
+        <div id="info-panel">
+            <p id="default-text">Klick auf einen Marker um Details zu sehen</p>
+        </div>
+
+        <!-- MITTE: Hier erscheint die Karte -->
+        <div id="map"></div> <!--Ein Container für die Karte, die von Leaflet erstellt wird-->
+
+        <!-- RECHTS: Filter Panel - User kann Locations filtern -->
+        <div id="filter-panel">
+            <h3>Filters</h3>
+
+            <h4>Type of places</h4>
+            <!-- onchange bedeutet: wenn Checkbox geändert wird, rufe filterLocations() auf -->
+            <label><input type="checkbox" value="park" onchange="filterLocations()"/> Parks</label>
+            <label><input type="checkbox" value="library" onchange="filterLocations()"/> Libraries</label>
+            <label><input type="checkbox" value="cafe" onchange="filterLocations()"/> Cafes</label>
+
+            <h4>Crowd Level</h4>
+            <label><input type="checkbox" value="quiet" onchange="filterLocations()"/> Quiet (0-33%)</label>
+            <label><input type="checkbox" value="medium" onchange="filterLocations()"/> Medium (34-66%)</label>
+            <label><input type="checkbox" value="crowded" onchange="filterLocations()"/> Crowded (67-100%)</label>
+        </div>
+
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> <!--Lädt Leaflet JavaScript aus dem Internet. Das ist der Code der die Karte tatsächlich zeichnet.-->
+    <script src="script.js"></script> <!--Lädt unseren eigenen JavaScript-Code, der die Karte initialisiert und die Daten vom Backend holt.-->
+
+</body>
+</html>
