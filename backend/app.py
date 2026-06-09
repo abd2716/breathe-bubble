@@ -1,10 +1,18 @@
-from flask import Flask, jsonify #laden Flask - Wie ein import — wir sagen Python "benutze Flask
-from flask_cors import CORS #CORS erlaubt unserem Frontend mit dem Backend zu reden. Ohne das blockiert der Browser die Verbindung.
-from flask import Flask, jsonify, request #request erlaubt uns, Daten vom Frontend zu empfangen, z.B. wenn jemand ein Formular abschickt.
-
+from flask import Flask, jsonify, request # Flask laden, jsonify für JSON Antworten, request für Daten vom Frontend
+from flask_cors import CORS # CORS erlaubt unserem Frontend mit dem Backend zu reden. Ohne das blockiert der Browser die Verbindung.
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity # ★ NEU: JWT für Login System
 
 app = Flask(__name__)
-CORS(app)       #Wir starten Flask und aktivieren CORS.
+CORS(app) # Wir starten Flask und aktivieren CORS.
+
+# ★ NEU: JWT Konfiguration - das ist der geheime Schlüssel zum Signieren der Tokens
+app.config['JWT_SECRET_KEY'] = 'breathe-bubble-secret-key'
+jwt = JWTManager(app)
+
+# ★ NEU: Testuser - später würde das aus einer Datenbank kommen
+users = [
+    {"id": 1, "username": "test", "password": "1234"},
+]
 
 locations = [
     {"id": 1, "name": "Stadtpark", "type": "park", "crowd_level": 20, "lat": 48.2063, "lng": 16.3806},
@@ -12,10 +20,10 @@ locations = [
     {"id": 3, "name": "Café Central", "type": "cafe", "crowd_level": 75, "lat": 48.2099, "lng": 16.3674},
 ]
 
-@app.route('/locations', methods=['GET']) #Wenn jemand auf http://localhost:5000/locations geht, führt Flask diese Funktion aus. GET bedeutet: jemand will Daten lesen.
+# GET - alle Locations lesen
+@app.route('/locations', methods=['GET'])
 def get_locations():
-    return jsonify(locations) #Die Funktion erstellt eine Liste von Orten mit ihren Informationen und gibt sie als JSON zurück. JSON ist ein Format, das leicht von JavaScript im Frontend verarbeitet werden kann.
-
+    return jsonify(locations) # gibt alle Locations als JSON zurück
 
 # POST - neue Location hinzufügen
 @app.route('/locations', methods=['POST'])
@@ -44,7 +52,79 @@ def delete_location(id):
             locations.remove(location)
             return jsonify({"message": "Deleted"})
     return jsonify({"error": "Not found"}), 404
-    
 
-if __name__ == '__main__': 
-    app.run(debug=True) 
+# ★ NEU: POST - Login Endpoint
+# Frontend schickt Username + Passwort → Backend prüft → gibt Token zurück
+@app.route('/login', methods=['POST'])
+def login():
+    # Daten vom Frontend holen
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    # User in der Liste suchen
+    for user in users:
+        if user['username'] == username and user['password'] == password:
+            # Token erstellen und zurückschicken
+            token = create_access_token(identity=username)
+            return jsonify({"token": token})
+
+    # Wenn User nicht gefunden oder Passwort falsch
+    return jsonify({"error": "Wrong username or password"}), 401
+
+# ★ NEU: GET - geschützter Endpoint zum Testen ob Login funktioniert
+# @jwt_required() bedeutet: nur mit gültigem Token zugänglich
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    # get_jwt_identity holt den Username aus dem Token
+    current_user = get_jwt_identity()
+    return jsonify({"logged_in_as": current_user})
+
+# ★ NEU: Favorites Liste - speichert Favorites pro User
+favorites = []
+
+# ★ NEU: GET - alle Favorites des eingeloggten Users holen
+@app.route('/favorites', methods=['GET'])
+@jwt_required()
+def get_favorites():
+    # get_jwt_identity holt den Username aus dem Token
+    current_user = get_jwt_identity()
+    # Nur Favorites dieses Users zurückgeben
+    user_favorites = [f for f in favorites if f['username'] == current_user]
+    return jsonify(user_favorites)
+
+# ★ NEU: POST - Location zu Favorites hinzufügen
+@app.route('/favorites', methods=['POST'])
+@jwt_required()
+def add_favorite():
+    current_user = get_jwt_identity()
+    data = request.json
+    # Favorite Objekt erstellen
+    favorite = {
+        "id": len(favorites) + 1,
+        "username": current_user,
+        "location_name": data.get('location_name'),
+        "location_type": data.get('location_type'),
+        "crowd_level": data.get('crowd_level'),
+        "lat": data.get('lat'),
+        "lng": data.get('lng')
+    }
+    favorites.append(favorite)
+    return jsonify(favorite), 201
+
+# ★ NEU: DELETE - Favorite löschen
+@app.route('/favorites/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_favorite(id):
+    current_user = get_jwt_identity()
+    for favorite in favorites:
+        if favorite['id'] == id and favorite['username'] == current_user:
+            favorites.remove(favorite)
+            return jsonify({"message": "Deleted"})
+    return jsonify({"error": "Not found"}), 404
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
