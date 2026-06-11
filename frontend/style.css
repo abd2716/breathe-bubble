@@ -1,52 +1,67 @@
-/* Setzt alle standard Abstände vom Browser auf 0 */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Grunddesign der ganzen Seite */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
     background-color: #f5f5f0;
     color: #2d4a3e;
 }
 
-/* NAVBAR - Leiste oben */
+/* NAVBAR */
 #navbar {
-    display: flex; /* stellt alle Elemente nebeneinander */
-    align-items: center; /* zentriert alles vertikal */
-    justify-content: space-between; /* verteilt Elemente mit Abstand */
-    padding: 15px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 30px;
     background-color: #ffffff;
     border-bottom: 1px solid #dde8dd;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
 #navbar h1 {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     color: #2d6a4f;
+    font-weight: 700;
 }
 
-/* Suchfeld in der Navbar */
 #navbar input {
     width: 40%;
     padding: 10px 20px;
     border: 1px solid #ccc;
-    border-radius: 25px; /* macht die Ecken rund */
+    border-radius: 25px;
     font-size: 1rem;
-    outline: none; /* entfernt den blauen Rand beim Klicken */
+    outline: none;
+    background-color: #f9f9f7;
 }
 
-/* Login und Signup Buttons */
+#navbar input:focus {
+    border-color: #2d6a4f;
+    background-color: #fff;
+}
+
+#nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#nav-buttons span {
+    color: #2d6a4f;
+    font-weight: 600;
+}
+
 #nav-buttons button {
-    margin-left: 10px;
-    padding: 10px 20px;
-    border: 1px solid #2d6a4f;
+    padding: 8px 20px;
+    border: 1.5px solid #2d6a4f;
     border-radius: 20px;
     background-color: #f0f7f0;
     color: #2d6a4f;
-    cursor: pointer; /* Maus wird zur Hand beim Hover */
+    cursor: pointer;
     font-size: 0.9rem;
+    transition: all 0.2s;
 }
 
 #nav-buttons button:hover {
@@ -54,29 +69,165 @@ body {
     color: white;
 }
 
-/* HAUPTBEREICH - 3 Spalten nebeneinander */
+/* HAUPTBEREICH */
 #main-container {
-    display: flex; /* stellt die 3 Panels nebeneinander */
-    height: calc(100vh - 60px); /* volle Höhe minus Navbar */
+    display: flex;
+    height: calc(100vh - 57px);
 }
 
-/* LINKS: Info Panel */
+/* INFO PANEL LINKS */
 #info-panel {
-    width: 280px;
-    min-width: 280px; /* wird nicht kleiner als 280px */
+    width: 300px;
+    min-width: 300px;
     padding: 20px;
     background-color: #ffffff;
     border-right: 1px solid #dde8dd;
-    overflow-y: auto; /* Scrollbar wenn Inhalt zu lang */
+    overflow-y: auto;
 }
 
-/* MITTE: Karte */
+#info-panel h2 {
+    font-size: 1.3rem;
+    color: #1a3a2a;
+    margin-bottom: 4px;
+}
+
+#info-panel p {
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+#info-panel hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 10px 0;
+}
+
+/* Runde Crowd Anzeige */
+.crowd-circle {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.crowd-ring {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: 6px solid;
+    flex-shrink: 0;
+}
+
+.crowd-ring.quiet {
+    border-color: #52b788;
+    color: #52b788;
+}
+
+.crowd-ring.medium {
+    border-color: #f4a261;
+    color: #f4a261;
+}
+
+.crowd-ring.crowded {
+    border-color: #e63946;
+    color: #e63946;
+}
+
+.crowd-info p {
+    margin: 3px 0;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+/* Recommendations Box */
+.recommendations-box {
+    background-color: #f9f5e8;
+    border-radius: 10px;
+    padding: 12px;
+    margin: 12px 0;
+}
+
+.recommendations-box h4 {
+    color: #b5821a;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.recommendations-box p {
+    color: #555;
+    font-size: 0.85rem;
+    margin: 4px 0;
+}
+
+/* Buttons im Info Panel */
+#info-panel button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2d6a4f;
+    color: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin: 4px 0;
+    width: 100%;
+    transition: background-color 0.2s;
+}
+
+#info-panel button:hover {
+    background-color: #1a4a35;
+}
+
+/* Rating Sterne */
+#stars span {
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+#stars span:hover {
+    transform: scale(1.2);
+}
+
+/* Favorites */
+.favorite-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: #f0f7f0;
+    border-radius: 8px;
+    border: 1px solid #dde8dd;
+}
+
+.favorite-item b {
+    color: #1a3a2a;
+    font-size: 0.9rem;
+}
+
+.favorite-item p {
+    color: #777;
+    font-size: 0.8rem;
+    margin: 2px 0;
+}
+
+.favorite-item button {
+    margin-top: 5px;
+    padding: 4px 10px;
+    background-color: #e74c3c;
+    width: auto;
+}
+
+/* KARTE */
 #map {
-    flex: 1; /* nimmt den ganzen übrigen Platz */
+    flex: 1;
     height: 100%;
 }
 
-/* RECHTS: Filter Panel */
+/* FILTER PANEL RECHTS */
 #filter-panel {
     width: 250px;
     min-width: 250px;
@@ -89,17 +240,84 @@ body {
 #filter-panel h3 {
     margin-bottom: 15px;
     color: #2d6a4f;
+    font-size: 1.1rem;
+    font-weight: 700;
 }
 
 #filter-panel h4 {
     margin-top: 15px;
     margin-bottom: 8px;
-    color: #555;
+    color: #444;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
-/* Checkboxen im Filter Panel */
 #filter-panel label {
-    display: block; /* jede Checkbox in eigener Zeile */
+    display: block;
     margin-bottom: 8px;
     cursor: pointer;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+#filter-panel input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: #2d6a4f;
+}
+
+/* LOGIN MODAL */
+#login-modal, #signup-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#login-box {
+    background-color: white;
+    padding: 40px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 320px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+#login-box h2 {
+    color: #2d6a4f;
+    margin-bottom: 5px;
+}
+
+#login-box input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+}
+
+#login-box input:focus {
+    border-color: #2d6a4f;
+}
+
+#login-box button {
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2d6a4f;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+#login-box button:hover {
+    background-color: #1a4a35;
 }
