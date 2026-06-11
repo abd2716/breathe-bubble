@@ -249,16 +249,20 @@ def calculate_crowd_level(loc_type='park'):
 @app.route('/external-locations', methods=['GET'])
 def get_external_locations():
     query = """
-    [out:json][timeout:25];
-    node["leisure"="park"]["name"](48.1,16.2,48.3,16.5);
-    out 50;
+        [out:json][timeout:60];
+        (
+        node["leisure"="park"]["name"](48.1,16.2,48.3,16.5);
+        node["amenity"="cafe"]["name"](48.1,16.2,48.3,16.5);
+        node["amenity"="library"]["name"](48.1,16.2,48.3,16.5);
+        );
+        out 30;
     """
     
     try:
         response = requests.get(
-            'https://lz4.overpass-api.de/api/interpreter',
+            'https://overpass.private.coffee/api/interpreter',
             params={'data': query},
-            timeout=30
+            timeout=60  # länger warten
         )
         if response.status_code == 200:
             data = response.json()
