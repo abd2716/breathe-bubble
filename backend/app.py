@@ -150,6 +150,7 @@ def delete_favorite(id):
             favorites.remove(favorite)
             return jsonify({"message": "Deleted"})
     return jsonify({"error": "Not found"}), 404
+
 #AB DA Open-Meteo API ENDPOINTS
 # ★ NEU: Aktuelles Wetter in Wien von Open-Meteo API holen
 def get_weather():
@@ -249,24 +250,24 @@ def calculate_crowd_level(loc_type='park'):
 @app.route('/external-locations', methods=['GET'])
 def get_external_locations():
     query = """
-        [out:json][timeout:60];
-        (
-        node["leisure"="park"]["name"](48.1,16.2,48.3,16.5);
-        node["amenity"="cafe"]["name"](48.1,16.2,48.3,16.5);
-        node["amenity"="library"]["name"](48.1,16.2,48.3,16.5);
-        );
-        out 30;
+    [out:json][timeout:10];
+    (
+      node["leisure"="park"]["name"](48.1,16.2,48.3,16.5);
+      node["amenity"="cafe"]["name"](48.1,16.2,48.3,16.5);
+      node["amenity"="library"]["name"](48.1,16.2,48.3,16.5);
+    );
+    out 20;
     """
-    
     try:
         response = requests.get(
-            'https://overpass.private.coffee/api/interpreter',
+            'https://overpass-api.de/api/interpreter',
             params={'data': query},
-            timeout=60  # länger warten
+            timeout=5,
+            headers={'User-Agent': 'BreatheBubble/1.0 (university project)'}
         )
         if response.status_code == 200:
             data = response.json()
-            locations = []
+            result = []
             for element in data['elements']:
                 if 'name' in element.get('tags', {}):
                     tags = element['tags']
@@ -276,21 +277,20 @@ def get_external_locations():
                         loc_type = 'cafe'
                     else:
                         loc_type = 'library'
-                    locations.append({
+                    result.append({
                         "id": element['id'],
                         "name": tags['name'],
                         "type": loc_type,
-                        # ★ GEÄNDERT: loc_type mitgeben damit Crowd Level nach Typ berechnet wird
                         "crowd_level": calculate_crowd_level(loc_type),
                         "lat": element['lat'],
                         "lng": element['lon']
                     })
-            return jsonify(locations)
-    except:
-        pass
-    
-    # ★ Fallback: wenn API nicht erreichbar → hardcoded Testdaten
-    # ★ GEÄNDERT: loc_type mitgeben damit Crowd Level nach Typ berechnet wird
+            if result:
+                return jsonify(result)
+    except Exception as e:
+        print("Overpass Fehler:", e)
+
+    # Fallback: wenn API nicht erreichbar → hardcoded Testdaten
     fallback_locations = [
         {"id": 1, "name": "Stadtpark", "type": "park", "crowd_level": calculate_crowd_level("park"), "lat": 48.2063, "lng": 16.3806},
         {"id": 2, "name": "Volksgarten", "type": "park", "crowd_level": calculate_crowd_level("park"), "lat": 48.2066, "lng": 16.3616},
@@ -309,6 +309,7 @@ def get_external_locations():
         {"id": 15, "name": "Café Schwarzenberg", "type": "cafe", "crowd_level": calculate_crowd_level("cafe"), "lat": 48.2033, "lng": 16.3772},
     ]
     return jsonify(fallback_locations)
+
 # ★ NEU: Recommendations basierend auf Crowd Level und Typ generieren
 @app.route('/recommendations/<int:location_id>', methods=['GET'])
 def get_recommendations(location_id):
