@@ -2,7 +2,7 @@
 
 <html lang="en">
 <head>
-    <meta charset="UTF-8"> <!--Erlaubt Sonderzeichen wie ä, ö, ü -->
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!--Sorgt dafür, dass die Seite auf Handys gut aussieht-->
     <title>Breathe Bubble</title>
     
@@ -21,21 +21,21 @@
             <button onclick="showSignup()">Sign up</button> <!--Ruft showSignup() in script.js auf-->
         </div>
     </nav>
-    <!-- ★ NEU: Login Modal - erscheint wenn User auf "Log in" klickt -->
+    <!-- Login Modal - erscheint wenn User auf "Log in" klickt -->
     <div id="login-modal" style="display:none;">
         <div id="login-box">
             <h2>Login</h2>
-            <input id="login-username" type="text" placeholder="Username"/>
-            <input id="login-password" type="password" placeholder="Password"/>
-            <button onclick="login()">Log in</button>
-            <button onclick="closeLogin()">Abbrechen</button>
-            <p id="login-error" style="color:red;"></p>
+            <input id="login-username" type="text" placeholder="Username"/> <!-- Eingabefeld für den Benutzernamen -->
+            <input id="login-password" type="password" placeholder="Password"/> <!-- für Passwort -->
+            <button onclick="login()">Log in</button> 
+            <button onclick="closeLogin()">Abbrechen</button> 
+            <p id="login-error" style="color:red;"></p> <!-- Fehlermeldungen angezeigt z.B. falsches pw" -->
         </div>
     </div>
-    <!-- ★ NEU: Sign Up Modal -->
-    <div id="signup-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;">
-        <div id="login-box">
-            <h2>Sign Up</h2>
+    <!-- Sign Up Modal -->
+    <div id="signup-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;"> <!-- halbtransparenter Hintergrund damit fokus auf Anmeldeformular liegt -->
+        <div id="login-box"> 
+            <h2>Sign Up</h2> 
             <input id="signup-username" type="text" placeholder="Username"/>
             <input id="signup-password" type="password" placeholder="Password"/>
             <button onclick="signup()">Sign Up</button>
@@ -43,38 +43,47 @@
             <p id="signup-error" style="color:red;"></p>
         </div>
     </div>
-    <!-- HAUPTBEREICH - 3 Spalten nebeneinander -->
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;">
+        <div id="login-box">
+            <h2>Change Password</h2>
+            <input id="new-password" type="password" placeholder="New Password"/>
+            <button onclick="updatePassword(document.getElementById('new-password').value)">Update</button>
+            <button onclick="document.getElementById('change-password-modal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+    <!-- Hauptbereich 3 Spalten nebeneinander -->
     <div id="main-container">
 
-        <!-- LINKS: Info Panel - zeigt Details wenn man auf einen Marker klickt -->
+        <!-- LINKS Info Panel, zeigt Details wenn man auf ein Marker klickt -->
         <div id="info-panel">
             <p id="default-text">Klick auf einen Marker um Details zu sehen</p>
-            <!-- ★ NEU: Favorites werden hier angezeigt -->
+            <!-- Favorites werden hier angezeigt -->
             <div id="favorites-panel"></div>
         </div>
 
-        <!-- MITTE: Hier erscheint die Karte -->
-        <div id="map"></div> <!--Ein Container für die Karte, die von Leaflet erstellt wird-->
+        <!-- MITTE Karte erscheint hier -->
+        <div id="map"></div> <!--Container für Karte, die von Leaflet erstellt wird-->
 
-        <!-- RECHTS: Filter Panel - User kann Locations filtern -->
+        <!-- RECHTS: Filter Panel, User kann locations filtern -->
         <div id="filter-panel">
             <h3>Filters</h3>
 
             <h4>Type of places</h4>
-            <!-- onchange bedeutet: wenn Checkbox geändert wird, rufe filterLocations() auf -->
+            <!-- onchange bedeutet: wenn checkbox geändert wird, rufe filterLocations() auf -->
             <label><input type="checkbox" value="park" onchange="filterLocations()"/> Parks</label>
             <label><input type="checkbox" value="library" onchange="filterLocations()"/> Libraries</label>
             <label><input type="checkbox" value="cafe" onchange="filterLocations()"/> Cafes</label>
 
             <h4>Crowd Level</h4>
-            <label><input type="checkbox" value="quiet" onchange="filterLocations()"/> Quiet (0-33%)</label>
+            <label><input type="checkbox" value="quiet" onchange="filterLocations()"/> Quiet (0-33%)</label> <!-- Filter für ruhige Orte -->
             <label><input type="checkbox" value="medium" onchange="filterLocations()"/> Medium (34-66%)</label>
             <label><input type="checkbox" value="crowded" onchange="filterLocations()"/> Crowded (67-100%)</label>
         </div>
 
     </div>
 
-    <!-- Leaflet JS -->
+    <!-- Leaflet JS --> 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> <!--Lädt Leaflet JavaScript aus dem Internet. Das ist der Code der die Karte tatsächlich zeichnet.-->
     <script src="script.js"></script> <!--Lädt unseren eigenen JavaScript-Code, der die Karte initialisiert und die Daten vom Backend holt.-->
 

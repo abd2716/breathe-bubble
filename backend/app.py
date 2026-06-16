@@ -1,11 +1,11 @@
-import requests  # ★ NEU: damit kann Python HTTP Requests an externe APIs machen
-from datetime import datetime  # ★ NEU: damit können wir die aktuelle Uhrzeit holen
+import requests  #damit kann Python HTTP Requests an externe APIs machen
+from datetime import datetime  #damit können wir die aktuelle Uhrzeit holen
 from flask import Flask, jsonify, request # Flask laden, jsonify für JSON Antworten, request für Daten vom Frontend
-from flask_cors import CORS # CORS erlaubt unserem Frontend mit dem Backend zu reden. Ohne das blockiert der Browser die Verbindung.
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity # ★ NEU: JWT für Login System
+from flask_cors import CORS # CORS erlaubt unserem Frontend mit dem Backend zu reden. Ohne das blockiert der Browser die Verbindung
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity #JWT für Login System
 
 app = Flask(__name__)
-CORS(app) # Wir starten Flask und aktivieren CORS.
+CORS(app) #starten Flask und aktivieren CORS
 
 # ★ NEU: JWT Konfiguration - das ist der geheime Schlüssel zum Signieren der Tokens
 app.config['JWT_SECRET_KEY'] = 'breathe-bubble-secret-key'
@@ -29,23 +29,33 @@ def get_locations():
 
 # POST - neue Location hinzufügen
 @app.route('/locations', methods=['POST'])
-def add_location():
+def add_location(): 
     # request.json holt die Daten die das Frontend schickt
     new_location = request.json
     locations.append(new_location)
     return jsonify(new_location), 201
 
-# PUT - eine Location updaten
-@app.route('/locations/<int:id>', methods=['PUT'])
-def update_location(id):
-    # Suche die Location mit dieser ID
-    for location in locations:
-        if location['id'] == id:
-            # Update die Daten mit dem was Frontend schickt
-            location.update(request.json)
-            return jsonify(location)
-    return jsonify({"error": "Not found"}), 404
-
+# PUT - User Passwort updaten
+@app.route('/users/<username>', methods=['PUT'])
+@jwt_required()
+def update_user(username):
+    current_user = get_jwt_identity()
+    
+    # User kann nur sein eigenes Profil updaten
+    if current_user != username:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    data = request.json
+    new_password = data.get('password')
+    
+    # User in der Liste suchen und updaten
+    for user in users:
+        if user['username'] == username:
+            user['password'] = new_password
+            return jsonify({"message": "Password updated", "username": username})
+    
+    return jsonify({"error": "User not found"}), 404
+    
 # DELETE - eine Location löschen
 @app.route('/locations/<int:id>', methods=['DELETE'])
 def delete_location(id):
@@ -394,6 +404,7 @@ def get_ratings(location_id): # Alle Bewertungen für eine bestimmte Location ho
         "average": avg, # Durchschnittliche Quietness Bewertung zurückgeben
         "count": len(location_ratings) # Anzahl der Bewertungen zurückgeben
     })
-
-if __name__ == '__main__':
+# Ist der Standard Code um Flask zu starten. Das Backend startet sich selbst — unabhängig vom Frontend.
+if __name__ == '__main__': 
     app.run(debug=True)
+

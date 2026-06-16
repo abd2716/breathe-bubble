@@ -60,7 +60,8 @@ function signup() {
             // Navbar updaten
             document.getElementById('nav-buttons').innerHTML = 
                 `<span>👤 ${username}</span>
-                 <button onclick="logout()">Log out</button>`;
+                <button onclick="document.getElementById('change-password-modal').style.display='flex'">⚙️ Settings</button>
+                <button onclick="logout()">Log out</button>`;
             loadFavorites();
         } else {
             document.getElementById('signup-error').textContent = data.error;
@@ -86,10 +87,11 @@ function login() {
             token = data.token;
             // Modal schließen
             closeLogin();
-            // Login Button zu Username ändern
+            // Navbar updaten - zeigt jetzt den Benutzernamen und Logout Button
             document.getElementById('nav-buttons').innerHTML = 
                 `<span>👤 ${username}</span>
-                 <button onclick="logout()">Log out</button>`;
+                <button onclick="document.getElementById('change-password-modal').style.display='flex'">⚙️ Settings</button>
+                <button onclick="logout()">Log out</button>`;
             // Favorites laden sobald eingeloggt
             loadFavorites();
         } else {
@@ -111,6 +113,29 @@ function logout() {
     }
 }
 //Bis hier login-logout (JWT)
+
+// PUT - Passwort updaten
+function updatePassword(newPassword) {
+    const usernameSpan = document.querySelector('#nav-buttons span');
+    const username = usernameSpan.textContent.replace('👤 ', '');
+    
+    fetch(`http://localhost:5000/users/${username}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ password: newPassword })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert('Password updated successfully!');
+            document.getElementById('change-password-modal').style.display = 'none';
+        }
+    });
+}
+
 // Search Funktion - filtert Locations nach Name
 function searchLocations(query) {
     if (query === '') {
