@@ -1,17 +1,17 @@
 import requests  #damit kann Python HTTP Requests an externe APIs machen
-from datetime import datetime  #damit können wir die aktuelle Uhrzeit holen
+from datetime import datetime  
 from flask import Flask, jsonify, request # Flask laden, jsonify für JSON Antworten, request für Daten vom Frontend
 from flask_cors import CORS # CORS erlaubt unserem Frontend mit dem Backend zu reden. Ohne das blockiert der Browser die Verbindung
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity #JWT für Login System
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity 
 
 app = Flask(__name__)
 CORS(app) #starten Flask und aktivieren CORS
 
-# ★ NEU: JWT Konfiguration - das ist der geheime Schlüssel zum Signieren der Tokens
+# JWT Konfiguration 
 app.config['JWT_SECRET_KEY'] = 'breathe-bubble-secret-key'
 jwt = JWTManager(app)
 
-# ★ NEU: Testuser - später würde das aus einer Datenbank kommen
+# Testuser
 users = [
     {"id": 1, "username": "test", "password": "1234"},
 ]
@@ -31,7 +31,7 @@ def get_locations():
 @app.route('/locations', methods=['POST'])
 def add_location(): 
     # request.json holt die Daten die das Frontend schickt
-    new_location = request.json
+    new_location = request.json 
     locations.append(new_location)
     return jsonify(new_location), 201
 
@@ -65,8 +65,7 @@ def delete_location(id):
             return jsonify({"message": "Deleted"})
     return jsonify({"error": "Not found"}), 404
 
-# ★ NEU: POST - Login Endpoint
-# Frontend schickt Username + Passwort → Backend prüft → gibt Token zurück
+# POST - Login Endpoint
 @app.route('/login', methods=['POST'])
 def login():
     # Daten vom Frontend holen
@@ -84,8 +83,7 @@ def login():
         # Wenn User nicht gefunden oder Passwort falsch
     return jsonify({"error": "Wrong username or password"}), 401
 
-# ★ NEU: POST - Sign Up Endpoint
-# Frontend schickt Username + Passwort → Backend speichert neuen User
+# POST - Sign Up Endpoint
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.json
@@ -109,7 +107,7 @@ def signup():
     token = create_access_token(identity=username)
     return jsonify({"token": token}), 201
 
-# ★ NEU: GET - geschützter Endpoint zum Testen ob Login funktioniert
+# GET - geschützter Endpoint zum Testen ob Login funktioniert
 # @jwt_required() bedeutet: nur mit gültigem Token zugänglich
 @app.route('/protected', methods=['GET'])
 @jwt_required()
@@ -118,10 +116,10 @@ def protected():
     current_user = get_jwt_identity()
     return jsonify({"logged_in_as": current_user})
 
-# ★ NEU: Favorites Liste - speichert Favorites pro User
+# Favorites Liste - speichert Favorites pro User
 favorites = []
 
-# ★ NEU: GET - alle Favorites des eingeloggten Users holen
+# GET - alle Favorites des eingeloggten Users holen
 @app.route('/favorites', methods=['GET'])
 @jwt_required()
 def get_favorites():
@@ -131,7 +129,7 @@ def get_favorites():
     user_favorites = [f for f in favorites if f['username'] == current_user]
     return jsonify(user_favorites)
 
-# ★ NEU: POST - Location zu Favorites hinzufügen
+# POST - Location zu Favorites hinzufügen
 @app.route('/favorites', methods=['POST'])
 @jwt_required()
 def add_favorite():
@@ -150,7 +148,7 @@ def add_favorite():
     favorites.append(favorite)
     return jsonify(favorite), 201
 
-# ★ NEU: DELETE - Favorite löschen
+# DELETE - Favorite löschen
 @app.route('/favorites/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_favorite(id):
@@ -162,7 +160,7 @@ def delete_favorite(id):
     return jsonify({"error": "Not found"}), 404
 
 #AB DA Open-Meteo API ENDPOINTS
-# ★ NEU: Aktuelles Wetter in Wien von Open-Meteo API holen
+# Aktuelles Wetter in Wien von Open-Meteo API holen
 def get_weather():
     try:
         response = requests.get(
@@ -188,8 +186,8 @@ def get_weather():
     return {'temperature': 15, 'weathercode': 0, 'windspeed': 10}
 
 #AB DA OVERPASS API ENDPOINTS
-# ★ NEU: Crowd Level basierend auf Typ UND Tageszeit berechnen
-# ★ NEU: Crowd Level basierend auf Typ, Uhrzeit UND Wetter berechnen
+# Crowd Level basierend auf Typ UND Tageszeit berechnen
+# Crowd Level basierend auf Typ, Uhrzeit UND Wetter berechnen
 def calculate_crowd_level(loc_type='park'):
     hour = datetime.now().hour
     weather = get_weather()
@@ -197,7 +195,6 @@ def calculate_crowd_level(loc_type='park'):
     temp = weather['temperature']
 
     # Wetter Modifier - wie sehr beeinflusst das Wetter den Crowd Level
-    # Regen → Parks leerer, Cafés/Bibliotheken voller
     if code >= 51:  # Regen oder schlimmer
         if loc_type == 'park':
             weather_modifier = -30  # Park wird viel leerer
@@ -256,7 +253,7 @@ def calculate_crowd_level(loc_type='park'):
     # max(0, min(100, ...)) stellt sicher dass der Wert zwischen 0 und 100 bleibt
     return max(0, min(100, base + weather_modifier))
 
-# ★ NEU: Overpass API - echte Locations aus Wien holen
+# Overpass API - echte Locations aus Wien holen
 @app.route('/external-locations', methods=['GET'])
 def get_external_locations():
     query = """
@@ -320,7 +317,7 @@ def get_external_locations():
     ]
     return jsonify(fallback_locations)
 
-# ★ NEU: Recommendations basierend auf Crowd Level und Typ generieren
+# NEU: Recommendations basierend auf Crowd Level und Typ generieren
 @app.route('/recommendations/<int:location_id>', methods=['GET'])
 def get_recommendations(location_id):
     # Crowd Level und Typ aus den external locations holen
@@ -366,10 +363,10 @@ def get_recommendations(location_id):
 
     return jsonify({"recommendations": recommendations})
 
-# ★ NEU: Ratings Liste - speichert Bewertungen pro Location
+# Ratings Liste - speichert Bewertungen pro Location
 ratings = []
 
-# ★ NEU: POST - Bewertung abgeben
+# POST - Bewertung abgeben
 # Nur eingeloggte User können bewerten
 @app.route('/ratings/<int:location_id>', methods=['POST'])
 @jwt_required()
@@ -387,7 +384,7 @@ def add_rating(location_id):
     ratings.append(rating)
     return jsonify(rating), 201
 
-# ★ NEU: GET - alle Bewertungen einer Location holen
+# GET - alle Bewertungen einer Location holen
 @app.route('/ratings/<int:location_id>', methods=['GET'])
 def get_ratings(location_id): # Alle Bewertungen für eine bestimmte Location holen
     location_ratings = [r for r in ratings if r['location_id'] == location_id] # Alle Bewertungen für diese Location filtern
@@ -401,7 +398,7 @@ def get_ratings(location_id): # Alle Bewertungen für eine bestimmte Location ho
     
     return jsonify({
         "ratings": location_ratings, # alle Bewertungen als Liste zurückgeben
-        "average": avg, # Durchschnittliche Quietness Bewertung zurückgeben
+        "average": avg, 
         "count": len(location_ratings) # Anzahl der Bewertungen zurückgeben
     })
 # Ist der Standard Code um Flask zu starten. Das Backend startet sich selbst — unabhängig vom Frontend.
